@@ -167,6 +167,14 @@ export class FinanceStore {
     await this.loadNotes();
   }
 
+  /** Обмен всех разовых планов между двумя днями (повторяющиеся не затрагиваются). */
+  async swapPlanned(from: string, to: string): Promise<void> {
+    await api.swapPlanned(from, to);
+    await this.loadDetail(from);
+    await this.loadDetail(to);
+    await this.refreshRange();
+  }
+
   async addRecurring(input: CreateRecurringInput): Promise<void> {
     await api.addRecurring(input);
     await this.loadRecurring();

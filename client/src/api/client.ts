@@ -87,6 +87,9 @@ export const api = {
 
   deletePlanned: (id: number) => req<{ ok: boolean }>('DELETE', `/api/planned/${id}`),
 
+  swapPlanned: (from: string, to: string) =>
+    req<{ ok: boolean }>('POST', '/api/planned/swap', { from, to }),
+
   getRecurring: () => req<RecurringRule[]>('GET', '/api/recurring'),
 
   addRecurring: (d: CreateRecurringInput) => req<RecurringRule>('POST', '/api/recurring', d),

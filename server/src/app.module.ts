@@ -7,7 +7,9 @@ import { FinanceModule } from './finance/finance.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'better-sqlite3',
-      database: join(__dirname, '..', 'data', 'finance.sqlite'),
+      database:
+        process.env.DB_PATH ??
+        join(__dirname, '..', 'data', 'finance.sqlite'),
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),

@@ -15,6 +15,7 @@ export const DayEditor = observer(function DayEditor({ date, onClose, onOpenRecu
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [etype, setEtype] = useState<'expense' | 'income'>('expense');
+  const [swapTo, setSwapTo] = useState('');
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -47,6 +48,17 @@ export const DayEditor = observer(function DayEditor({ date, onClose, onOpenRecu
       await store.addPlanned(date, etype, v, note.trim() || undefined);
       setAmount('');
       setNote('');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const swapPlans = async () => {
+    if (!swapTo) return;
+    setBusy(true);
+    try {
+      await store.swapPlanned(date, swapTo);
+      setSwapTo('');
     } finally {
       setBusy(false);
     }
@@ -193,6 +205,23 @@ export const DayEditor = observer(function DayEditor({ date, onClose, onOpenRecu
               <option key={n} value={n} />
             ))}
           </datalist>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title">Перенос планов на другой день</div>
+        <p className="hint">
+          Обменяет разовые расходы/доходы этого дня с выбранным днём. Повторяющиеся правила не затрагиваются.
+        </p>
+        <div className="row">
+          <input
+            type="date"
+            value={swapTo}
+            onChange={(e) => setSwapTo(e.target.value)}
+          />
+          <button type="button" className="primary" onClick={() => void swapPlans()} disabled={busy || !swapTo}>
+            Обменять
+          </button>
         </div>
       </div>
 

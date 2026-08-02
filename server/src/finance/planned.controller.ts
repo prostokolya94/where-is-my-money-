@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -14,6 +15,7 @@ import { Between, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePlannedDto } from './dto/planned.dto';
 import { PlannedQueryDto } from './dto/planned-query.dto';
+import { SwapPlannedDto } from './dto/swap-planned.dto';
 import { UpdatePlannedDto } from './dto/update-planned.dto';
 import { PlannedEntry } from './entities/planned-entry.entity';
 
@@ -38,6 +40,20 @@ export class PlannedController {
   @Post()
   create(@Body() dto: CreatePlannedDto) {
     return this.repo.save(this.repo.create(dto));
+  }
+
+  /** Обмен всех разовых планов между двумя днями. Повторяющиеся правила не затрагиваются. */
+  @Post('swap')
+  async swap(@Body() dto: SwapPlannedDto) {
+    if (dto.from === dto.to) {
+      throw new BadRequestException('Даты должны различаться');
+    }
+    const fromEntries = await this.repo.find({ where: { date: dto.from } });
+    const toEntries = await this.repo.find({ where: { date: dto.to } });
+    for (const e of fromEntries) e.date = dto.to;
+    for (const e of toEntries) e.date = dto.from;
+    await this.repo.save([...fromEntries, ...toEntries]);
+    return { ok: true };
   }
 
   @Patch(':id')
