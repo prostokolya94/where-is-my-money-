@@ -164,8 +164,14 @@ export const RecurringPanel = observer(function RecurringPanel({ onClose }: Prop
             value={form.note}
             placeholder="Название (напр. «Зарплата»)"
             maxLength={200}
+            list="note-suggestions-rec"
             onChange={(e) => set('note', e.target.value)}
           />
+          <datalist id="note-suggestions-rec">
+            {store.suggestions(form.type).map((n) => (
+              <option key={n} value={n} />
+            ))}
+          </datalist>
           <select value={form.frequency} onChange={(e) => set('frequency', e.target.value as Frequency)}>
             {(Object.keys(FREQ_LABEL) as Frequency[]).map((f) => (
               <option key={f} value={f}>

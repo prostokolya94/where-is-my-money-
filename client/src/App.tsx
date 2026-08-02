@@ -11,7 +11,10 @@ export const App = observer(function App() {
   const [showRecurring, setShowRecurring] = useState(false);
 
   useEffect(() => {
-    void store.loadRecurring();
+    void (async () => {
+      await store.loadRecurring();
+      await store.loadNotes();
+    })();
   }, []);
 
   const today = store.dayInfo.get(todayStr());

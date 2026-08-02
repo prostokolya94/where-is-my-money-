@@ -4,6 +4,7 @@ import {
   CreateRecurringInput,
   DayDetail,
   DayInfo,
+  EntryType,
   RecurringRule,
 } from '../api/client';
 import { HEADER_H, monthLabel, WEEK_H, Week, weeksForMonth } from '../utils/calendar';
@@ -12,6 +13,8 @@ export class FinanceStore {
   dayInfo = new Map<string, DayInfo>();
   dayDetail = new Map<string, DayDetail>();
   recurring: RecurringRule[] = [];
+  expenseNoteFreq = new Map<string, number>();
+  incomeNoteFreq = new Map<string, number>();
   loadedFrom: string | null = null;
   loadedTo: string | null = null;
   loading = false;
@@ -109,6 +112,35 @@ export class FinanceStore {
     this.recurring = await api.getRecurring();
   }
 
+  /** Частота уже использованных имён трат/доходов (для подсказок в поле «Название»). */
+  async loadNotes(): Promise<void> {
+    const entries = await api.getAllPlanned();
+    const expense = new Map<string, number>();
+    const income = new Map<string, number>();
+    const add = (note: string, type: EntryType) => {
+      const key = note.trim();
+      if (!key) return;
+      const map = type === 'expense' ? expense : income;
+      map.set(key, (map.get(key) ?? 0) + 1);
+    };
+    for (const e of entries) {
+      if (e.note) add(e.note, e.type);
+    }
+    for (const r of this.recurring) {
+      if (r.note) add(r.note, r.type);
+    }
+    this.expenseNoteFreq = expense;
+    this.incomeNoteFreq = income;
+  }
+
+  suggestions(type: EntryType, limit = 8): string[] {
+    const map = type === 'expense' ? this.expenseNoteFreq : this.incomeNoteFreq;
+    return [...map.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([n]) => n);
+  }
+
   async setBalance(date: string, amount: number): Promise<void> {
     await api.setBalance(date, amount);
     await this.refreshRange();
@@ -125,30 +157,35 @@ export class FinanceStore {
     await api.addPlanned({ date, type, amount, note });
     await this.loadDetail(date);
     await this.refreshRange();
+    await this.loadNotes();
   }
 
   async deletePlanned(id: number, date: string): Promise<void> {
     await api.deletePlanned(id);
     await this.loadDetail(date);
     await this.refreshRange();
+    await this.loadNotes();
   }
 
   async addRecurring(input: CreateRecurringInput): Promise<void> {
     await api.addRecurring(input);
     await this.loadRecurring();
     await this.refreshRange();
+    await this.loadNotes();
   }
 
   async updateRecurring(id: number, input: Partial<CreateRecurringInput>): Promise<void> {
     await api.updateRecurring(id, input);
     await this.loadRecurring();
     await this.refreshRange();
+    await this.loadNotes();
   }
 
   async deleteRecurring(id: number): Promise<void> {
     await api.deleteRecurring(id);
     await this.loadRecurring();
     await this.refreshRange();
+    await this.loadNotes();
   }
 }
 

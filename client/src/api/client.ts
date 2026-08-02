@@ -80,6 +80,8 @@ export const api = {
 
   getPlanned: (date: string) => req<PlannedEntry[]>('GET', `/api/planned?date=${date}`),
 
+  getAllPlanned: () => req<PlannedEntry[]>('GET', '/api/planned'),
+
   addPlanned: (d: { date: string; type: EntryType; amount: number; note?: string }) =>
     req<PlannedEntry>('POST', '/api/planned', d),
 

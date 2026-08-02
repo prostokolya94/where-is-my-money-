@@ -182,11 +182,17 @@ export const DayEditor = observer(function DayEditor({ date, onClose, onOpenRecu
             value={note}
             placeholder="Название"
             maxLength={200}
+            list="note-suggestions"
             onChange={(e) => setNote(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') void addPlan();
             }}
           />
+          <datalist id="note-suggestions">
+            {store.suggestions(etype).map((n) => (
+              <option key={n} value={n} />
+            ))}
+          </datalist>
         </div>
       </div>
 
