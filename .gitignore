@@ -1,0 +1,8 @@
+node_modules/
+dist/
+server/public/
+server/data/
+*.sqlite
+*.sqlite-journal
+.DS_Store
+*.log
