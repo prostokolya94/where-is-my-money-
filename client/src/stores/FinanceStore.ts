@@ -160,6 +160,20 @@ export class FinanceStore {
     await this.loadNotes();
   }
 
+  /** Создать или обновить запись по дате + типу + названию (не плодит дубли). */
+  async upsertPlanned(type: EntryType, date: string, amount: number, note: string): Promise<void> {
+    const existing = await api.getPlanned(date);
+    const found = existing.find((e) => e.type === type && e.note === note);
+    if (found) {
+      await api.updatePlanned(found.id, { amount });
+    } else {
+      await api.addPlanned({ date, type, amount, note });
+    }
+    await this.loadDetail(date);
+    await this.refreshRange();
+    await this.loadNotes();
+  }
+
   async deletePlanned(id: number, date: string): Promise<void> {
     await api.deletePlanned(id);
     await this.loadDetail(date);

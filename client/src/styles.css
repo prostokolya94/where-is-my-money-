@@ -560,3 +560,91 @@ button:disabled {
   margin: 0;
   font-size: 16px;
 }
+
+.salary-panel {
+  width: 760px;
+  max-width: 94vw;
+  max-height: 86vh;
+  overflow-y: auto;
+}
+
+.salary-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.salary-row {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.salary-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.salary-row-head select {
+  width: 100%;
+}
+
+.salary-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 10px 0;
+}
+
+.rate-line {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.vacation-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+.sum-line {
+  font-size: 14px;
+}
+
+.sum-line b.i {
+  color: var(--pos);
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.salary-panel > .ghost {
+  width: 100%;
+}

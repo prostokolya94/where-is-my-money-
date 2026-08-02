@@ -157,6 +157,16 @@ export const DayEditor = observer(function DayEditor({ date, onClose, onOpenRecu
           {detail && detail.entries.length === 0 && <div className="empty">Нет запланированных записей</div>}
         </div>
         <div className="add-form">
+          <input
+            value={note}
+            placeholder="Название"
+            maxLength={200}
+            list="note-suggestions"
+            onChange={(e) => setNote(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') void addPlan();
+            }}
+          />
           <div className="row">
             <div className="seg">
               <button
@@ -190,16 +200,6 @@ export const DayEditor = observer(function DayEditor({ date, onClose, onOpenRecu
               +
             </button>
           </div>
-          <input
-            value={note}
-            placeholder="Название"
-            maxLength={200}
-            list="note-suggestions"
-            onChange={(e) => setNote(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') void addPlan();
-            }}
-          />
           <datalist id="note-suggestions">
             {store.suggestions(etype).map((n) => (
               <option key={n} value={n} />

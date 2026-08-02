@@ -3,12 +3,14 @@ import { useEffect, useState } from 'react';
 import { Calendar } from './components/Calendar';
 import { DayEditor } from './components/DayEditor';
 import { RecurringPanel } from './components/RecurringPanel';
+import { SalaryPanel } from './components/SalaryPanel';
 import { store } from './stores/FinanceStore';
 import { fmtMoney, todayStr } from './utils/calendar';
 
 export const App = observer(function App() {
   const [selected, setSelected] = useState<string | null>(null);
   const [showRecurring, setShowRecurring] = useState(false);
+  const [showSalary, setShowSalary] = useState(false);
 
   useEffect(() => {
     void (async () => {
@@ -39,6 +41,9 @@ export const App = observer(function App() {
           )}
         </div>
         <div className="spacer" />
+        <button type="button" className="ghost" onClick={() => setShowSalary(true)}>
+          Расчёт зарплаты
+        </button>
         <button type="button" className="ghost" onClick={() => setShowRecurring(true)}>
           Повторяющиеся
         </button>
@@ -59,6 +64,7 @@ export const App = observer(function App() {
         />
       )}
       {showRecurring && <RecurringPanel onClose={() => setShowRecurring(false)} />}
+      {showSalary && <SalaryPanel onClose={() => setShowSalary(false)} />}
     </div>
   );
 });

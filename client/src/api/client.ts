@@ -87,6 +87,9 @@ export const api = {
 
   deletePlanned: (id: number) => req<{ ok: boolean }>('DELETE', `/api/planned/${id}`),
 
+  updatePlanned: (id: number, d: Partial<{ date: string; type: EntryType; amount: number; note?: string }>) =>
+    req<PlannedEntry>('PATCH', `/api/planned/${id}`, d),
+
   swapPlanned: (from: string, to: string) =>
     req<{ ok: boolean }>('POST', '/api/planned/swap', { from, to }),
 
