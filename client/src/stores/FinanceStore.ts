@@ -2,12 +2,30 @@ import { makeAutoObservable } from 'mobx';
 import {
   api,
   CreateRecurringInput,
+  CustomPlan,
   DayDetail,
   DayInfo,
   EntryType,
+  PlannedEntry,
   RecurringRule,
 } from '../api/client';
 import { HEADER_H, monthLabel, WEEK_H, Week, weeksForMonth } from '../utils/calendar';
+
+export interface ComputedPlanRow {
+  id: number;
+  date: string;
+  amount: number;
+  autoBefore: number;
+  before: number;
+  after: number;
+  overridden: boolean;
+  stale: boolean;
+}
+
+export interface CustomPlanComputation {
+  rows: ComputedPlanRow[];
+  contributions: { date: string; amount: number }[];
+}
 
 export class FinanceStore {
   dayInfo = new Map<string, DayInfo>();
@@ -15,6 +33,8 @@ export class FinanceStore {
   recurring: RecurringRule[] = [];
   expenseNoteFreq = new Map<string, number>();
   incomeNoteFreq = new Map<string, number>();
+  customPlans: CustomPlan[] = [];
+  plannedEntries: PlannedEntry[] = [];
   loadedFrom: string | null = null;
   loadedTo: string | null = null;
   loading = false;
@@ -115,6 +135,7 @@ export class FinanceStore {
   /** Частота уже использованных имён трат/доходов (для подсказок в поле «Название»). */
   async loadNotes(): Promise<void> {
     const entries = await api.getAllPlanned();
+    this.plannedEntries = entries;
     const expense = new Map<string, number>();
     const income = new Map<string, number>();
     const add = (note: string, type: EntryType) => {
@@ -194,6 +215,99 @@ export class FinanceStore {
     await api.clonePlanned(from, to);
     await this.loadDetail(to);
     await this.refreshRange();
+  }
+
+  async loadCustomPlans(): Promise<void> {
+    this.customPlans = await api.getCustomPlans();
+  }
+
+  async addCustomPlan(d: { title: string; label?: string; initialBalance?: number }): Promise<void> {
+    await api.addCustomPlan(d);
+    await this.loadCustomPlans();
+  }
+
+  async updateCustomPlan(id: number, d: { title?: string; label?: string; initialBalance?: number }): Promise<void> {
+    await api.updateCustomPlan(id, d);
+    await this.loadCustomPlans();
+  }
+
+  async deleteCustomPlan(id: number): Promise<void> {
+    await api.deleteCustomPlan(id);
+    await this.loadCustomPlans();
+  }
+
+  async addCustomPlanRow(planId: number, d: { date: string; amount: number }): Promise<void> {
+    await api.addCustomPlanRow(planId, d);
+    await this.loadCustomPlans();
+  }
+
+  async updateCustomPlanRow(
+    rowId: number,
+    d: { date?: string; amount?: number; overrideBefore?: number | null; overrideSnapshot?: number | null },
+  ): Promise<void> {
+    await api.updateCustomPlanRow(rowId, d);
+    await this.loadCustomPlans();
+  }
+
+  async deleteCustomPlanRow(rowId: number): Promise<void> {
+    await api.deleteCustomPlanRow(rowId);
+    await this.loadCustomPlans();
+  }
+
+  /** Расчёт цели: вклады (расходы с меткой, без учёта регистра) + списания по строкам. */
+  computePlan(plan: CustomPlan): CustomPlanComputation {
+    const label = plan.label.trim().toLowerCase();
+    const contributions = this.plannedEntries
+      .filter(
+        (e) =>
+          e.type === 'expense' &&
+          !!e.note &&
+          e.note.trim().toLowerCase() === label &&
+          e.amount > 0,
+      )
+      .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.id - b.id))
+      .map((e) => ({ date: e.date, amount: e.amount }));
+
+    const sortedRows = [...plan.rows].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.id - b.id));
+
+    let cursor = plan.initialBalance;
+    let ci = 0;
+    const rows: ComputedPlanRow[] = [];
+    for (const r of sortedRows) {
+      while (ci < contributions.length && contributions[ci].date <= r.date) {
+        cursor += contributions[ci].amount;
+        ci++;
+      }
+      const autoBefore = cursor;
+      let before = autoBefore;
+      let overridden = false;
+      let stale = false;
+      if (r.overrideBefore != null && r.overrideSnapshot != null) {
+        if (Math.abs(autoBefore - r.overrideSnapshot) < 0.005) {
+          before = r.overrideBefore;
+          overridden = true;
+        } else {
+          stale = true;
+        }
+      }
+      const after = before - r.amount;
+      cursor = after;
+      rows.push({ id: r.id, date: r.date, amount: r.amount, autoBefore, before, after, overridden, stale });
+    }
+    return { rows, contributions };
+  }
+
+  /** Дни со списаниями по планам: дата → названия планов. */
+  planMarkers(): Map<string, string[]> {
+    const markers = new Map<string, string[]>();
+    for (const plan of this.customPlans) {
+      for (const row of plan.rows) {
+        const list = markers.get(row.date) ?? [];
+        if (!list.includes(plan.title)) list.push(plan.title);
+        markers.set(row.date, list);
+      }
+    }
+    return markers;
   }
 
   async addRecurring(input: CreateRecurringInput): Promise<void> {

@@ -40,6 +40,8 @@ export const DayCell = observer(function DayCell({ date, onSelect }: Props) {
     ? `${s}\nрасход: ${fmtMoney(info.plannedExpense)}\nдоход: ${fmtMoney(info.plannedIncome)}\nостаток: ${fmtMoney(balance)}`
     : s;
 
+  const planNames = store.planMarkers().get(s);
+
   return (
     <button type="button" className={cls} onClick={() => onSelect(s)} title={title}>
       <span className="dnum">
@@ -47,6 +49,11 @@ export const DayCell = observer(function DayCell({ date, onSelect }: Props) {
         {info?.actualBalance != null && <i className="dot" />}
       </span>
       <span className="bal">{balance !== null ? fmtMoney(balance) : ''}</span>
+      {planNames && planNames.length > 0 && (
+        <span className="plan-mark" title={`Списание по плану: ${planNames.join(', ')}`}>
+          !
+        </span>
+      )}
       {info && (info.plannedExpense > 0 || info.plannedIncome > 0) && (
         <span className="flows">
           {info.plannedExpense > 0 && <span className="fl-e">−{fmtMoney(info.plannedExpense)}</span>}

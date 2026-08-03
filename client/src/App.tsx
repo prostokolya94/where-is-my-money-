@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import { Calendar } from './components/Calendar';
+import { CustomPlansPanel } from './components/CustomPlansPanel';
 import { DayEditor } from './components/DayEditor';
 import { RecurringPanel } from './components/RecurringPanel';
 import { SalaryPanel } from './components/SalaryPanel';
@@ -11,11 +12,13 @@ export const App = observer(function App() {
   const [selected, setSelected] = useState<string | null>(null);
   const [showRecurring, setShowRecurring] = useState(false);
   const [showSalary, setShowSalary] = useState(false);
+  const [showPlans, setShowPlans] = useState(false);
 
   useEffect(() => {
     void (async () => {
       await store.loadRecurring();
       await store.loadNotes();
+      await store.loadCustomPlans();
     })();
   }, []);
 
@@ -41,6 +44,9 @@ export const App = observer(function App() {
           )}
         </div>
         <div className="spacer" />
+        <button type="button" className="ghost" onClick={() => setShowPlans(true)}>
+          Свои планы
+        </button>
         <button type="button" className="ghost" onClick={() => setShowSalary(true)}>
           Расчёт зарплаты
         </button>
@@ -65,6 +71,7 @@ export const App = observer(function App() {
       )}
       {showRecurring && <RecurringPanel onClose={() => setShowRecurring(false)} />}
       {showSalary && <SalaryPanel onClose={() => setShowSalary(false)} />}
+      {showPlans && <CustomPlansPanel onClose={() => setShowPlans(false)} />}
     </div>
   );
 });
