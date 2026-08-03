@@ -16,6 +16,7 @@ export const DayEditor = observer(function DayEditor({ date, onClose, onOpenRecu
   const [note, setNote] = useState('');
   const [etype, setEtype] = useState<'expense' | 'income'>('expense');
   const [swapTo, setSwapTo] = useState('');
+  const [cloneFrom, setCloneFrom] = useState('');
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -64,6 +65,17 @@ export const DayEditor = observer(function DayEditor({ date, onClose, onOpenRecu
     }
   };
 
+  const clonePlans = async () => {
+    if (!cloneFrom) return;
+    setBusy(true);
+    try {
+      await store.clonePlanned(cloneFrom, date);
+      setCloneFrom('');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const prev = store.dayInfo.get(addDays(date, -1));
   let diff: number | null = null;
   if (detail?.actualBalance != null && prev?.plannedBalance != null) {
@@ -85,10 +97,6 @@ export const DayEditor = observer(function DayEditor({ date, onClose, onOpenRecu
           <span className="muted">Запланированный остаток</span>
           <b>{fmtMoney(detail?.plannedBalance ?? null)} ₽</b>
         </div>
-        <div className="row between">
-          <span className="muted">Фактический остаток</span>
-          <b>{detail?.actualBalance != null ? `${fmtMoney(detail.actualBalance)} ₽` : '—'}</b>
-        </div>
         {diff !== null && (
           <div className="row between">
             <span className="muted">Отклонение от прогноза</span>
@@ -98,6 +106,7 @@ export const DayEditor = observer(function DayEditor({ date, onClose, onOpenRecu
             </b>
           </div>
         )}
+        {diff === null && <div className="empty">Введите фактический остаток в конце дня.</div>}
       </div>
 
       <div className="card">
@@ -221,6 +230,28 @@ export const DayEditor = observer(function DayEditor({ date, onClose, onOpenRecu
           />
           <button type="button" className="primary" onClick={() => void swapPlans()} disabled={busy || !swapTo}>
             Обменять
+          </button>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title">Скопировать планы из другого дня</div>
+        <p className="hint">
+          Копирует все разовые расходы/доходы из выбранного дня в этот день. Источник не изменяется.
+        </p>
+        <div className="row">
+          <input
+            type="date"
+            value={cloneFrom}
+            onChange={(e) => setCloneFrom(e.target.value)}
+          />
+          <button
+            type="button"
+            className="primary"
+            onClick={() => void clonePlans()}
+            disabled={busy || !cloneFrom}
+          >
+            Скопировать
           </button>
         </div>
       </div>

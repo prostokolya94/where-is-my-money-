@@ -22,6 +22,7 @@ export const DayCell = observer(function DayCell({ date, onSelect }: Props) {
   const today = isToday(s);
   const isPast = s < todayStr();
   const lvl = balance !== null && !isPast ? balanceLevel(balance) : '';
+  const payday = info !== undefined && info.plannedIncome > 25000;
 
   const cls = [
     'day-cell',
@@ -30,6 +31,7 @@ export const DayCell = observer(function DayCell({ date, onSelect }: Props) {
     negative ? 'negative' : '',
     lvl,
     isPast ? 'past' : '',
+    payday ? 'payday' : '',
   ]
     .filter(Boolean)
     .join(' ');

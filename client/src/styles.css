@@ -162,6 +162,12 @@ body {
   background: rgba(128, 133, 141, 0.11);
 }
 
+.day-cell.payday {
+  border-left: 1px solid rgba(124, 58, 237, 0.55);
+  border-top: 1px solid rgba(124, 58, 237, 0.55);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.35), rgba(124, 58, 237, 0.1) 55%, var(--bg) 95%);
+}
+
 .day-cell:hover {
   background: #f2f5ff;
 }

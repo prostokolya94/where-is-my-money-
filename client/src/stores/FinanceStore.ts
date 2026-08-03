@@ -189,6 +189,13 @@ export class FinanceStore {
     await this.refreshRange();
   }
 
+  /** Копирование всех разовых планов из дня from в день to (источник не трогается). */
+  async clonePlanned(from: string, to: string): Promise<void> {
+    await api.clonePlanned(from, to);
+    await this.loadDetail(to);
+    await this.refreshRange();
+  }
+
   async addRecurring(input: CreateRecurringInput): Promise<void> {
     await api.addRecurring(input);
     await this.loadRecurring();

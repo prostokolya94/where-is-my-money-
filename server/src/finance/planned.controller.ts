@@ -16,6 +16,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePlannedDto } from './dto/planned.dto';
 import { PlannedQueryDto } from './dto/planned-query.dto';
 import { SwapPlannedDto } from './dto/swap-planned.dto';
+import { ClonePlannedDto } from './dto/clone-planned.dto';
 import { UpdatePlannedDto } from './dto/update-planned.dto';
 import { PlannedEntry } from './entities/planned-entry.entity';
 
@@ -54,6 +55,18 @@ export class PlannedController {
     for (const e of toEntries) e.date = dto.from;
     await this.repo.save([...fromEntries, ...toEntries]);
     return { ok: true };
+  }
+
+  /** Копирование всех разовых планов из дня from в день to (источник не трогается). */
+  @Post('clone')
+  async clone(@Body() dto: ClonePlannedDto) {
+    if (dto.from === dto.to) {
+      throw new BadRequestException('Даты должны различаться');
+    }
+    const fromEntries = await this.repo.find({ where: { date: dto.from } });
+    const copies = fromEntries.map((e) => this.repo.create({ date: dto.to, type: e.type, amount: e.amount, note: e.note }));
+    await this.repo.save(copies);
+    return { ok: true, copied: copies.length };
   }
 
   @Patch(':id')

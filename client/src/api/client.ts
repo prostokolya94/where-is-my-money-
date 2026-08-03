@@ -93,6 +93,9 @@ export const api = {
   swapPlanned: (from: string, to: string) =>
     req<{ ok: boolean }>('POST', '/api/planned/swap', { from, to }),
 
+  clonePlanned: (from: string, to: string) =>
+    req<{ ok: boolean; copied: number }>('POST', '/api/planned/clone', { from, to }),
+
   getRecurring: () => req<RecurringRule[]>('GET', '/api/recurring'),
 
   addRecurring: (d: CreateRecurringInput) => req<RecurringRule>('POST', '/api/recurring', d),
