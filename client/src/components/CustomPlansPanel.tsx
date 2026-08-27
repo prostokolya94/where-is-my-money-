@@ -83,11 +83,11 @@ export const CustomPlansPanel = observer(function CustomPlansPanel({ onClose }: 
     }
   };
 
-  const handleBefore = async (rowId: number, autoBefore: number, overridden: boolean, value: string) => {
+  const handleBefore = async (rowId: number, autoBefore: number, overridden: boolean, stale: boolean, value: string) => {
     const v = parseFloat(value.replace(',', '.'));
     if (isNaN(v)) return;
-    if (!overridden && Math.abs(v - autoBefore) < 0.005) return;
     if (Math.abs(v - autoBefore) < 0.005) {
+      if (!overridden && !stale) return;
       await commitRow(rowId, { overrideBefore: null, overrideSnapshot: null });
     } else {
       await commitRow(rowId, { overrideBefore: v, overrideSnapshot: autoBefore });
@@ -155,11 +155,13 @@ export const CustomPlansPanel = observer(function CustomPlansPanel({ onClose }: 
               {computation?.rows.map((r) => (
                 <div key={r.id} className="plan-row">
                   <input
+                    key={`${r.id}:date:${r.date}`}
                     type="date"
                     defaultValue={r.date}
                     onBlur={(e) => void commitRow(r.id, { date: e.target.value })}
                   />
                   <input
+                    key={`${r.id}:amount:${r.amount}`}
                     type="number"
                     step="any"
                     min="0"
@@ -172,12 +174,13 @@ export const CustomPlansPanel = observer(function CustomPlansPanel({ onClose }: 
                   />
                   <div className="before-cell">
                     <input
+                      key={`${r.id}:before:${r.before}`}
                       type="number"
                       step="any"
                       inputMode="decimal"
                       defaultValue={String(r.before)}
                       title="Баланс до платежа. Считается автоматически, можно переопределить вручную."
-                      onBlur={(e) => void handleBefore(r.id, r.autoBefore, r.overridden, e.target.value)}
+                      onBlur={(e) => void handleBefore(r.id, r.autoBefore, r.overridden, r.stale, e.target.value)}
                     />
                     {r.overridden && <span className="badge">ручн.</span>}
                     {r.stale && <span className="badge warn" title="Данные изменились, значение пересчитано">пересчёт</span>}
