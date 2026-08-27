@@ -3,6 +3,13 @@ setlocal
 title Где мои деньги
 cd /d "%~dp0"
 
+rem Подтягиваем последнюю версию из репозитория
+git pull origin main
+if errorlevel 1 (
+  echo Не удалось обновить код (git pull). Продолжаю со старой версией.
+  ver >nul
+)
+
 rem Добавляем Node.js в PATH, если он не найден
 where npm >nul 2>&1
 if errorlevel 1 (
