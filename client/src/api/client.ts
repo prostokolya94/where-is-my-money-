@@ -35,6 +35,42 @@ export interface DayDetail extends DayInfo {
   matchingRules: { id: number; type: EntryType; amount: number; note: string | null }[];
 }
 
+export interface TodoItem {
+  id: number;
+  title: string;
+  done: boolean;
+  dueDate: string | null;
+  sectionId: number | null;
+  parentId: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TodoSection {
+  id: number;
+  name: string;
+  color: string;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateTodoInput {
+  title: string;
+  dueDate?: string | null;
+  sectionId?: number | null;
+  parentId?: number | null;
+  done?: boolean;
+}
+
+export type UpdateTodoInput = Partial<CreateTodoInput>;
+
+export type UpdateTodoSectionInput = { name?: string; color?: string };
+
+export type RemoveSectionItems = 'unassign' | 'delete';
+
+export type RemoveTodoChildren = 'cascade' | 'promote';
+
 export interface CreateRecurringInput {
   type: EntryType;
   amount: number;
@@ -104,4 +140,27 @@ export const api = {
     req<RecurringRule>('PATCH', `/api/recurring/${id}`, d),
 
   deleteRecurring: (id: number) => req<{ ok: boolean }>('DELETE', `/api/recurring/${id}`),
+
+  getTodos: () => req<TodoItem[]>('GET', '/api/todos'),
+
+  addTodo: (d: CreateTodoInput) => req<TodoItem>('POST', '/api/todos', d),
+
+  updateTodo: (id: number, d: UpdateTodoInput) => req<TodoItem>('PATCH', `/api/todos/${id}`, d),
+
+  deleteTodo: (id: number, children: RemoveTodoChildren) =>
+    req<{ ok: boolean }>('DELETE', `/api/todos/${id}?children=${children}`),
+
+  getTodoSections: () => req<TodoSection[]>('GET', '/api/todo-sections'),
+
+  addTodoSection: (d: { name: string; color?: string }) =>
+    req<TodoSection>('POST', '/api/todo-sections', d),
+
+  updateTodoSection: (id: number, d: UpdateTodoSectionInput) =>
+    req<TodoSection>('PATCH', `/api/todo-sections/${id}`, d),
+
+  reorderTodoSections: (ids: number[]) =>
+    req<TodoSection[]>('PATCH', '/api/todo-sections/reorder', { ids }),
+
+  deleteTodoSection: (id: number, items: RemoveSectionItems) =>
+    req<{ ok: boolean }>('DELETE', `/api/todo-sections/${id}?items=${items}`),
 };

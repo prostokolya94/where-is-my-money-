@@ -1,6 +1,6 @@
 @echo off
 setlocal
-title Где мои деньги
+title Где моё
 cd /d "%~dp0"
 
 

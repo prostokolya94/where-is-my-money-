@@ -7,7 +7,7 @@ $g = [System.Drawing.Graphics]::FromImage($bmp)
 $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
 $g.Clear([System.Drawing.Color]::Transparent)
 
-# --- rounded rect background with gradient (green -> blue) ---
+# --- rounded square, gray-blue gradient ---
 $radius = 54
 $d = $radius * 2
 $path = New-Object System.Drawing.Drawing2D.GraphicsPath
@@ -18,44 +18,31 @@ $path.AddArc(0, $size - $d, $d, $d, 90, 90)
 $path.CloseFigure()
 
 $rect = [System.Drawing.Rectangle]::new(0, 0, $size, $size)
-$grad = New-Object System.Drawing.Drawing2D.LinearGradientBrush($rect, [System.Drawing.Color]::FromArgb(255, 46, 125, 50), [System.Drawing.Color]::FromArgb(255, 21, 101, 192), 55)
+$from = [System.Drawing.Color]::FromArgb(255, 143, 163, 189)
+$to = [System.Drawing.Color]::FromArgb(255, 43, 66, 92)
+$grad = New-Object System.Drawing.Drawing2D.LinearGradientBrush($rect, $from, $to, 45)
 $g.FillPath($grad, $path)
 
-# --- coin ---
-$coin = [System.Drawing.RectangleF]::new(70, 46, 116, 116)
-$white = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(255, 255, 255, 255))
-$g.FillEllipse($white, $coin)
-$gold = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb(255, 198, 156, 44), 9)
-$g.DrawEllipse($gold, $coin)
-
-# --- ruble sign ---
-$font = New-Object System.Drawing.Font('Segoe UI', 66, [System.Drawing.FontStyle]::Bold, [System.Drawing.GraphicsUnit]::Pixel)
-$fmt = New-Object System.Drawing.StringFormat
-$fmt.Alignment = [System.Drawing.StringAlignment]::Center
-$fmt.LineAlignment = [System.Drawing.StringAlignment]::Center
-$blue = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(255, 21, 101, 192))
-$textRect = [System.Drawing.RectangleF]::new(70, 52, 116, 104)
-$g.DrawString([char]0x20BD, $font, $blue, $textRect, $fmt)
-
-# --- growth / forecast line ---
-$pen = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb(235, 255, 255, 255), 11)
-$pen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
-$pen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
-$line = @(
-  [System.Drawing.Point]::new(58, 212),
-  [System.Drawing.Point]::new(96, 194),
-  [System.Drawing.Point]::new(128, 204),
-  [System.Drawing.Point]::new(168, 174),
-  [System.Drawing.Point]::new(202, 142)
+# --- soft light in the top-left corner ---
+$light = New-Object System.Drawing.Drawing2D.LinearGradientBrush(
+  [System.Drawing.Rectangle]::new(0, 0, $size, $size),
+  [System.Drawing.Color]::FromArgb(46, 255, 255, 255),
+  [System.Drawing.Color]::FromArgb(0, 255, 255, 255),
+  45
 )
-$g.DrawLines($pen, $line)
-$head = @(
-  [System.Drawing.Point]::new(202, 142),
-  [System.Drawing.Point]::new(182, 138),
-  [System.Drawing.Point]::new(202, 142),
-  [System.Drawing.Point]::new(198, 160)
-)
-$g.DrawLines($pen, $head)
+$g.FillPath($light, $path)
+
+# --- abstract mark: open ring (gap at the top) + center dot + satellite dot in the gap ---
+$ink = [System.Drawing.Color]::FromArgb(242, 255, 255, 255)
+$ringPen = New-Object System.Drawing.Pen($ink, 21)
+$ringPen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
+$ringPen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
+$arc = [System.Drawing.RectangleF]::new(56, 56, 144, 144)
+$g.DrawArc($ringPen, $arc, 350, 280)
+
+$brush = New-Object System.Drawing.SolidBrush($ink)
+$g.FillEllipse($brush, [System.Drawing.RectangleF]::new(96, 96, 64, 64))
+$g.FillEllipse($brush, [System.Drawing.RectangleF]::new(161, 60, 26, 26))
 
 $g.Dispose()
 

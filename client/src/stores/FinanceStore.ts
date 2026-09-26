@@ -2,10 +2,17 @@ import { makeAutoObservable } from 'mobx';
 import {
   api,
   CreateRecurringInput,
+  CreateTodoInput,
   DayDetail,
   DayInfo,
   EntryType,
   RecurringRule,
+  RemoveSectionItems,
+  RemoveTodoChildren,
+  TodoItem,
+  TodoSection,
+  UpdateTodoInput,
+  UpdateTodoSectionInput,
 } from '../api/client';
 import { addDays, HEADER_H, monthLabel, todayStr, WEEK_H, Week, weeksForMonth } from '../utils/calendar';
 
@@ -21,6 +28,8 @@ export class FinanceStore {
   dayInfo = new Map<string, DayInfo>();
   dayDetail = new Map<string, DayDetail>();
   recurring: RecurringRule[] = [];
+  todos: TodoItem[] = [];
+  todoSections: TodoSection[] = [];
   expenseNoteFreq = new Map<string, number>();
   incomeNoteFreq = new Map<string, number>();
   loadedFrom: string | null = null;
@@ -118,6 +127,50 @@ export class FinanceStore {
 
   async loadRecurring(): Promise<void> {
     this.recurring = await api.getRecurring();
+  }
+
+  async loadTodos(): Promise<void> {
+    this.todos = await api.getTodos();
+  }
+
+  async addTodo(input: CreateTodoInput): Promise<void> {
+    await api.addTodo(input);
+    await this.loadTodos();
+  }
+
+  async updateTodo(id: number, input: UpdateTodoInput): Promise<void> {
+    await api.updateTodo(id, input);
+    await this.loadTodos();
+  }
+
+  async deleteTodo(id: number, children: RemoveTodoChildren): Promise<void> {
+    await api.deleteTodo(id, children);
+    await this.loadTodos();
+  }
+
+  async loadTodoSections(): Promise<void> {
+    this.todoSections = await api.getTodoSections();
+  }
+
+  async addTodoSection(input: { name: string; color?: string }): Promise<void> {
+    await api.addTodoSection(input);
+    await this.loadTodoSections();
+  }
+
+  async updateTodoSection(id: number, input: UpdateTodoSectionInput): Promise<void> {
+    await api.updateTodoSection(id, input);
+    await this.loadTodoSections();
+  }
+
+  async reorderTodoSections(ids: number[]): Promise<void> {
+    await api.reorderTodoSections(ids);
+    await this.loadTodoSections();
+  }
+
+  async deleteTodoSection(id: number, items: RemoveSectionItems): Promise<void> {
+    await api.deleteTodoSection(id, items);
+    await this.loadTodoSections();
+    await this.loadTodos();
   }
 
   /** Частота уже использованных имён трат/доходов (для подсказок в поле «Название»). */
