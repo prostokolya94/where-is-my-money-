@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { VariableSizeList } from 'react-window';
 import { store } from '../stores/FinanceStore';
-import { addDays, HEADER_H, toDateStr, WEEK_H } from '../utils/calendar';
+import { addDays, fmtMoney, HEADER_H, toDateStr, WEEK_H } from '../utils/calendar';
 import { DayCell } from './DayCell';
 
 const WEEKDAY_H = 26;
@@ -33,6 +33,25 @@ function getScrollbarWidth(): number {
   return w;
 }
 
+const MonthSummary = observer(function MonthSummary({ ym }: { ym: number }) {
+  const s = store.monthSummary(ym);
+  const total = s.exceedDays + s.okDays + s.noFixDays;
+  if (total === 0) return null;
+  return (
+    <div className="month-summary">
+      <span className="ms-item ms-e" title="Дни с превышением плана и сумма перерасхода">
+        превыш.: {s.exceedDays} ({fmtMoney(s.sumExceeds)})
+      </span>
+      <span className="ms-item ms-s" title="Дни без превышения и сумма экономии">
+        норма: {s.okDays} ({fmtMoney(s.sumSavings)})
+      </span>
+      <span className="ms-item ms-n" title="Дни без ручной фиксации остатка">
+        без фикс.: {s.noFixDays}
+      </span>
+    </div>
+  );
+});
+
 const Row = observer(function Row({
   index,
   style,
@@ -46,7 +65,12 @@ const Row = observer(function Row({
   if (!w) return null;
   return (
     <div style={style} className="week">
-      {w.isMonthStart && <div className="month-header">{w.monthLabel}</div>}
+      {w.isMonthStart && (
+        <div className="month-header">
+          <span className="month-label">{w.monthLabel}</span>
+          <MonthSummary ym={w.ym} />
+        </div>
+      )}
       <div className="week-grid">
         {w.cells.map((cell, i) =>
           cell ? (

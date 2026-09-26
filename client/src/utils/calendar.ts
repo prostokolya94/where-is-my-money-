@@ -1,5 +1,5 @@
 export const WEEK_H = 112;
-export const HEADER_H = 30;
+export const HEADER_H = 46;
 
 export function toDateStr(d: Date): string {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(

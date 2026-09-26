@@ -11,6 +11,8 @@ import { FinanceModule } from './finance/finance.module';
         process.env.DB_PATH ??
         join(__dirname, '..', 'data', 'finance.sqlite'),
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      migrations: [__dirname + '/migrations/*{.ts,.js}'],
+      migrationsRun: true,
       synchronize: true,
     }),
     FinanceModule,

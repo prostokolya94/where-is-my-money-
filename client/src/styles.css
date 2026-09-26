@@ -104,10 +104,12 @@ body {
 }
 
 .month-header {
-  height: 30px;
+  height: 46px;
   flex: 0 0 auto;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
   padding: 0 12px;
   font-size: 13px;
   font-weight: 600;
@@ -115,6 +117,34 @@ body {
   background: var(--week-bg);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
+}
+
+.month-label {
+  line-height: 1.2;
+}
+
+.month-summary {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.ms-item {
+  white-space: nowrap;
+}
+
+.ms-e {
+  color: var(--neg);
+}
+
+.ms-s {
+  color: var(--pos);
+}
+
+.ms-n {
+  color: var(--muted);
 }
 
 .week-grid {
@@ -654,112 +684,4 @@ button:disabled {
 
 .salary-panel > .ghost {
   width: 100%;
-}
-
-.day-cell .plan-mark {
-  position: absolute;
-  top: 2px;
-  right: 5px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: 8px;
-  background: var(--neg);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.plans-panel {
-  width: 780px;
-  max-width: 94vw;
-  max-height: 86vh;
-  overflow-y: auto;
-}
-
-.plan-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.plan-tabs button {
-  padding: 6px 12px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--bg);
-  cursor: pointer;
-  font: inherit;
-  font-size: 13px;
-}
-
-.plan-tabs button.on {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
-
-.plan-tabs button.ghost.small {
-  border-style: dashed;
-  background: transparent;
-  color: var(--accent);
-}
-
-.plan-row {
-  display: grid;
-  grid-template-columns: 130px 90px 1fr 110px 28px;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.plan-row-head {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.plan-row-head span:last-child {
-  visibility: hidden;
-}
-
-.plan-row .before-cell {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.plan-row input[type='date'],
-.plan-row input[type='number'] {
-  width: 100%;
-  min-width: 0;
-}
-
-.plan-row .after {
-  text-align: right;
-  white-space: nowrap;
-}
-
-.badge {
-  font-size: 10px;
-  padding: 1px 5px;
-  border-radius: 8px;
-  background: #eef1f6;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.badge.warn {
-  background: #fff3d6;
-  color: #9a6700;
-}
-
-.contrib-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }

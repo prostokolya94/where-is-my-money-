@@ -30,24 +30,6 @@ export interface RecurringRule {
   monthOfYear: number | null;
 }
 
-export interface CustomPlanRow {
-  id: number;
-  planId: number;
-  date: string;
-  amount: number;
-  overrideBefore: number | null;
-  overrideSnapshot: number | null;
-}
-
-export interface CustomPlan {
-  id: number;
-  title: string;
-  label: string;
-  initialBalance: number;
-  order: number;
-  rows: CustomPlanRow[];
-}
-
 export interface DayDetail extends DayInfo {
   entries: PlannedEntry[];
   matchingRules: { id: number; type: EntryType; amount: number; note: string | null }[];
@@ -122,24 +104,4 @@ export const api = {
     req<RecurringRule>('PATCH', `/api/recurring/${id}`, d),
 
   deleteRecurring: (id: number) => req<{ ok: boolean }>('DELETE', `/api/recurring/${id}`),
-
-  getCustomPlans: () => req<CustomPlan[]>('GET', '/api/custom-plans'),
-
-  addCustomPlan: (d: { title: string; label?: string; initialBalance?: number }) =>
-    req<CustomPlan>('POST', '/api/custom-plans', d),
-
-  updateCustomPlan: (id: number, d: Partial<{ title: string; label: string; initialBalance: number }>) =>
-    req<CustomPlan>('PATCH', `/api/custom-plans/${id}`, d),
-
-  deleteCustomPlan: (id: number) => req<{ ok: boolean }>('DELETE', `/api/custom-plans/${id}`),
-
-  addCustomPlanRow: (planId: number, d: { date: string; amount: number }) =>
-    req<CustomPlanRow>('POST', `/api/custom-plans/${planId}/rows`, d),
-
-  updateCustomPlanRow: (
-    rowId: number,
-    d: Partial<{ date: string; amount: number; overrideBefore: number | null; overrideSnapshot: number | null }>,
-  ) => req<CustomPlanRow>('PATCH', `/api/custom-plans/rows/${rowId}`, d),
-
-  deleteCustomPlanRow: (rowId: number) => req<{ ok: boolean }>('DELETE', `/api/custom-plans/rows/${rowId}`),
 };
