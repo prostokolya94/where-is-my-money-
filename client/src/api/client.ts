@@ -40,6 +40,7 @@ export interface TodoItem {
   title: string;
   done: boolean;
   dueDate: string | null;
+  doneAt: string | null;
   sectionId: number | null;
   parentId: number | null;
   createdAt: string;

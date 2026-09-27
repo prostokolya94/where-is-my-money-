@@ -5,10 +5,6 @@ import { CreateTodoDto, UpdateTodoDto } from './dto/todo.dto';
 import { TodoSection } from './entities/todo-section.entity';
 import { TodoItem } from './entities/todo.entity';
 
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
 @Injectable()
 export class TodosService {
   constructor(
@@ -20,6 +16,11 @@ export class TodosService {
     const items = await this.repo.find({ order: { id: 'ASC' } });
     return items.sort((a, b) => {
       if (a.done !== b.done) return a.done ? 1 : -1;
+      if (a.done) {
+        const doneLeft = a.doneAt ? a.doneAt.getTime() : 0;
+        const doneRight = b.doneAt ? b.doneAt.getTime() : 0;
+        return doneRight - doneLeft || b.id - a.id;
+      }
       const left = a.dueDate ?? '9999-12-31';
       const right = b.dueDate ?? '9999-12-31';
       return left.localeCompare(right) || a.id - b.id;
@@ -36,14 +37,15 @@ export class TodosService {
         ? await this.checkSection(dto.sectionId)
         : await this.parentSection(parentId);
 
+    const done = dto.done ?? false;
     const item = this.repo.create({
       title,
-      done: dto.done ?? false,
+      done,
+      doneAt: done ? new Date() : null,
       dueDate: dto.dueDate ?? null,
       sectionId,
       parentId,
     });
-    if (item.done && !item.dueDate) item.dueDate = today();
     return this.repo.save(item);
   }
 
@@ -71,7 +73,7 @@ export class TodosService {
     }
     if (dto.done !== undefined) {
       item.done = dto.done;
-      if (item.done && !item.dueDate) item.dueDate = today();
+      item.doneAt = dto.done ? new Date() : null;
     }
     return this.repo.save(item);
   }

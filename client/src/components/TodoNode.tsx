@@ -60,7 +60,18 @@ export function TodoNode({ todo, byParent, onEdit, onAddSubtask }: Props) {
         </button>
 
         {todo.dueDate && (
-          <span className={`todo-due${overdue ? ' overdue' : ''}`}>до {dateLabel(todo.dueDate)}</span>
+          <span
+            className={`todo-due${overdue ? ' overdue' : ''}`}
+            title="Плановое выполнение"
+          >
+            до {dateLabel(todo.dueDate)}
+          </span>
+        )}
+
+        {todo.doneAt && (
+          <span className="todo-done-at" title="Фактическое выполнение">
+            ✓ {dateLabel(todo.doneAt.slice(0, 10))}
+          </span>
         )}
 
         <button

@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { TodoItem } from '../api/client';
 import { store } from '../stores/FinanceStore';
+import { dateLabel } from '../utils/calendar';
 
 interface Props {
   item: TodoItem | null;
@@ -80,7 +81,7 @@ export const TodoModal = observer(function TodoModal({ item, parent, onClose }: 
           />
 
           <label className="field-label" htmlFor="todo-due">
-            Срок выполнения
+            Плановое выполнение
           </label>
           <input
             id="todo-due"
@@ -88,6 +89,14 @@ export const TodoModal = observer(function TodoModal({ item, parent, onClose }: 
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
           />
+          <p className="hint">Необязательно. Дата фактического выполнения проставится сама, когда отметишь галочку.</p>
+
+          {item?.doneAt && (
+            <>
+              <label className="field-label">Фактическое выполнение</label>
+              <p className="hint">{dateLabel(item.doneAt.slice(0, 10))}</p>
+            </>
+          )}
 
           <label className="field-label" htmlFor="todo-section">
             Раздел
@@ -108,9 +117,7 @@ export const TodoModal = observer(function TodoModal({ item, parent, onClose }: 
               ))}
             </select>
           )}
-          <p className="hint">
-            Необязательно. Если отметить дело выполненным, а срок не указан, проставится сегодняшняя дата.
-          </p>
+          <p className="hint">Необязательно. Дело без раздела попадёт в блок «Без раздела».</p>
 
           <div className="row todo-form-actions">
             <button type="button" className="ghost" onClick={onClose}>

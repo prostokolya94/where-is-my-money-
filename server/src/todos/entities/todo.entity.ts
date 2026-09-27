@@ -14,6 +14,9 @@ export class TodoItem {
   @Column({ name: 'due_date', type: 'text', nullable: true })
   dueDate: string | null;
 
+  @Column({ name: 'done_at', type: 'datetime', nullable: true })
+  doneAt: Date | null;
+
   @Column({ name: 'section_id', type: 'integer', nullable: true })
   sectionId: number | null;
 

@@ -940,6 +940,12 @@ button:disabled {
   color: var(--neg);
 }
 
+.todo-done-at {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
 .todos-footer {
   font-size: 12px;
   color: var(--muted);
